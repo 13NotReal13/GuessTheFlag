@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var score = 0
     @State private var gameCount = 8
     
+    @State private var rotationAmount = [0.0, 0.0, 0.0]
+    
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -44,11 +46,20 @@ struct ContentView: View {
                     
                     ForEach(0..<3) { number in
                         Button {
-                            flagTapped(number)
+                            withAnimation {
+                                rotationAmount[number] += 360
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                flagTapped(number)
+                            }
                         } label: {
                             Image(countries[number])
                                 .clipShape(.capsule)
                                 .shadow(radius: 5)
+                                .rotation3DEffect(
+                                    .degrees(rotationAmount[number]),
+                                    axis: (x: 0, y: 1, z: 0)
+                                )
                         }
                     }
                 }
