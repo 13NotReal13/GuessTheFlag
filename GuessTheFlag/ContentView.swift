@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var gameCount = 8
     
     @State private var rotationAmount = [0.0, 0.0, 0.0]
+    @State private var selectedFlag: Int? = nil
     
     var body: some View {
         ZStack {
@@ -48,6 +49,7 @@ struct ContentView: View {
                         Button {
                             withAnimation {
                                 rotationAmount[number] += 360
+                                selectedFlag = number
                             }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                                 flagTapped(number)
@@ -60,6 +62,8 @@ struct ContentView: View {
                                     .degrees(rotationAmount[number]),
                                     axis: (x: 0, y: 1, z: 0)
                                 )
+                                .opacity(selectedFlag == nil || selectedFlag == number ? 1.0 : 0.25)
+                                .scaleEffect(selectedFlag == nil || selectedFlag == number ? CGSize(width: 1.0, height: 1.0) : CGSize(width: 0.75, height: 0.75))
                         }
                     }
                 }
@@ -108,13 +112,21 @@ struct ContentView: View {
     }
     
     private func askQuestion() {
-        countries.shuffle()
-        correctAnswer = Int.random(in: 0...2)
+        withAnimation {
+            countries.shuffle()
+            correctAnswer = Int.random(in: 0...2)
+            returnStateOfView()
+        }
     }
     
     private func restart() {
         gameCount = 8
         score = 0
+        returnStateOfView()
+    }
+    
+    private func returnStateOfView() {
+        selectedFlag = nil
     }
 }
 
